@@ -9,8 +9,38 @@
     <script type="text/javascript" src="lib/underscore-min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="lib/d3-tip.js"></script>
 
     <style>
+        .d3-tip {
+          line-height: 1;
+          font-weight: bold;
+          padding: 12px;
+          background: rgba(0, 0, 0, 0.8);
+          color: #fff;
+          border-radius: 2px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+        .d3-tip:after {
+          box-sizing: border-box;
+          display: inline;
+          font-size: 10px;
+          width: 100%;
+          line-height: 1;
+          color: rgba(0, 0, 0, 0.8);
+          content: "\25BC";
+          position: absolute;
+          text-align: center;
+        }
+
+        /* Style northward tooltips differently */
+        .d3-tip.n:after {
+          margin: -1px 0 0 0;
+          top: 100%;
+          left: 0;
+        }
 
         .node {
             cursor: pointer;
@@ -94,13 +124,23 @@
 </nav>
 
 <svg width="900" height="900"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+
 <script>
+
+    var tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function (d) {
+            console.log(d);
+            return "suck";
+        });
 
     var svg = d3.select("svg"),
         margin = 20,
         diameter = +svg.attr("width"),
         g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+
+    svg.call(tip);
 
     var color = d3.scaleLinear()
         .domain([-1, 5])
@@ -163,11 +203,13 @@
 
     root = d3.hierarchy(preppedData)
         .sum(function (d) {
-            return d['Starting Median Salary'] + d['Mid-Career Median Salary'];
+            return d['Starting Median Salary'] + d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary'];
         })
         .sort(function (a, b) {
             return b.value - a.value;
         });
+
+
 
     var focus = root,
         nodes = pack(root).descendants(),
@@ -184,7 +226,9 @@
         })
         .on("click", function (d) {
             if (focus !== d) zoom(d), d3.event.stopPropagation();
-        });
+        })
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide);
 
     var text = g.selectAll("text")
         .data(nodes)
