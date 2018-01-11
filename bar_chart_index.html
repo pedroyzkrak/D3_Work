@@ -24,8 +24,9 @@
             fill: white;
         }
 
-        .axis {
-            shape-rendering: crispEdges;
+        .y.axis {
+            font-size: 12px;
+            font-family: Montserrat, sans-serif;
         }
 
         .axis path {
@@ -135,6 +136,21 @@
             transform: translateY(4px);
         }
 
+        h3 {
+            text-align: center;
+        }
+
+        select {
+            background: transparent;
+            width: 100%;
+            padding: 5px;
+            font-size: 16px;
+            line-height: 1;
+            border: 0;
+            border-radius: 0;
+            height: 34px;
+        }
+
     </style>
 </head>
 <body>
@@ -160,117 +176,366 @@
 <div class="container-fluid bg-grey">
     <div class="row">
         <div class="col-md-1"></div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <h3>Filtros</h3>
-            <input type="button" class="button" value="Degree"/>
-            <input type="button" class="button" value="University"/>
-            <input type="button" class="button" value="Region"/>
+            <input type="button" class="button" value="Degree" id="degree_btn"/>
+            <select name='type' id='degree' hidden>
+                <option value='0' selected="selected" disabled hidden>Choose filter...</option>
+                <option id='degree_start' value='1'>Starting Median Salary</option>
+                <option id='degree_mid_start' value='2'>Mid-Career Median Salary</option>
+                <option id='degree_mid_10' value='3'>Mid-Career 10th Percentile Salary</option>
+                <option id='degree_mid_25' value='4'>Mid-Career 25th Percentile Salary</option>
+                <option id='degree_mid_75' value='5'>Mid-Career 75th Percentile Salary</option>
+                <option id='degree_mid_90' value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="School Type" id="uni_btn"/>
+            <select name='type' id='uni' hidden>
+                <option value='0' selected="selected" disabled hidden>Choose filter...</option>
+                <option id='uni_start' value='1'>Starting Median Salary</option>
+                <option id='uni_mid_start' value='2'>Mid-Career Median Salary</option>
+                <option id='uni_mid_10' value='3'>Mid-Career 10th Percentile Salary</option>
+                <option id='uni_mid_25' value='4'>Mid-Career 25th Percentile Salary</option>
+                <option id='uni_mid_75' value='5'>Mid-Career 75th Percentile Salary</option>
+                <option id='uni_mid_90' value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="Region" id="region_btn"/>
+            <select name='type' id='region' hidden>
+                <option value='0' selected="selected" disabled hidden>Choose filter...</option>
+                <option id='region_start' value='1'>Starting Median Salary</option>
+                <option id='region_mid_start' value='2'>Mid-Career Median Salary</option>
+                <option id='region_mid_10' value='3'>Mid-Career 10th Percentile Salary</option>
+                <option id='region_mid_25' value='4'>Mid-Career 25th Percentile Salary</option>
+                <option id='region_mid_75' value='5'>Mid-Career 75th Percentile Salary</option>
+                <option id='region_mid_90' value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
         </div>
-        <div class="col-md-8" id="svg_container"></div>
+        <div class="col-md-9" id="svg_container">
+            <h3 id="graph_title"></h3>
+        </div>
     </div>
 </div>
 
-<script src="https://d3js.org/d3.v3.min.js"></script>
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="lib/d3-tip.js"></script>
 
 <script>
 
-    var margin = {top: 30, right: 10, bottom: 10, left: 200},
+
+    var margin = {top: 30, right: 10, bottom: 10, left: 250},
         width = 960 - margin.right - margin.left,
         height = 930 - margin.top - margin.bottom;
 
     var formatDollar = d3.format("$,.0f");
 
-    var x = d3.scale.linear().range([0, width]),
-        y = d3.scale.ordinal().rangeRoundBands([0, height], .1);
+    var x = d3.scaleLinear().range([0, width]),
+        y = d3.scaleBand().rangeRound([0, height], .1);
 
-    var xAxis = d3.svg.axis().scale(x).orient("top").tickSize(-height).tickFormat(formatDollar),
-        yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
+    var xAxis = d3.axisTop().scale(x).tickSize(-height).tickFormat(formatDollar),
+        yAxis = d3.axisLeft().scale(y).tickSize(0);
 
     var tip = d3.tip()
         .attr('class', 'd3-tip')
-        .offset([-10, 0])
-        .html(function (d) {
-            return "<strong>Degree:</strong> <span style='color:lightskyblue'>" + d["Undergraduate Major"] + "</span><br/>" +
-                "<strong>Starting Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Starting Median Salary"]) + "</span><br/>" +
-                "<strong>Mid-Career Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Mid-Career Median Salary"]) + "</span>";
-        });
+        .offset([-10, 0]);
 
-    var svg = d3.select("#svg_container").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    function startCareerDegree() {
 
-    svg.call(tip);
+        document.getElementById("graph_title").innerHTML = "Starting Median Salary by Degree";
+        d3.selectAll("svg").remove();
 
-    d3.csv("dataset/degrees-that-pay-back.csv", function (error, data) {
-
-        if (error) throw error;
-
-        data.forEach(function (d) {
-            d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
-            d["Mid-Career Median Salary"] = +d["Mid-Career Median Salary"].replace("$", "").replace(",", "");
-        });
-
-        data.sort(function (a, b) {
-            return b["Starting Median Salary"] - a["Starting Median Salary"];
-        });
-
-        x.domain([0, d3.max(data, function (d) {
-            return d["Starting Median Salary"];
-        })]);
-        y.domain(data.map(function (d) {
-            return d["Undergraduate Major"];
-        }));
-
-
-        var bar = svg.selectAll("g.bar")
-            .data(data)
-            .enter()
-            .append("g")
-            .attr("class", "bar")
-            .attr("transform", function (d) {
-                return "translate(0," + y(d["Undergraduate Major"]) + ")";
-            })
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
-
-        bar.append("rect")
-            .attr("width", function (d) {
-                return x(d["Starting Median Salary"]);
-            })
-            .attr("height", y.rangeBand());
-
-        bar.append("text")
-            .attr("class", "value")
-            .attr("x", function (d) {
-                return x(d["Starting Median Salary"]);
-            })
-            .attr("y", y.rangeBand() / 2)
-            .attr("dx", -3)
-            .attr("dy", ".35em")
-            .attr("text-anchor", "end")
-            .text(function (d) {
-                return formatDollar(d["Starting Median Salary"]);
+        tip
+            .html(function (d) {
+                return "<strong>Degree:</strong> <span style='color:lightskyblue'>" + d["Undergraduate Major"] + "</span><br/>" +
+                    "<strong>Starting Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Starting Median Salary"]) + "</span><br/>";
             });
 
-        svg.append("g")
-            .attr("class", "x axis")
-            .call(xAxis);
+        var svg = d3.select("#svg_container").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis);
+        d3.csv("dataset/degrees-that-pay-back.csv", function (error, data) {
 
-    });
+            svg.call(tip);
+
+            if (error) throw error;
+
+            data.forEach(function (d) {
+                d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
+            });
+
+            data.sort(function (a, b) {
+                return b["Starting Median Salary"] - a["Starting Median Salary"];
+            });
+
+            x.domain([0, d3.max(data, function (d) {
+                return d["Starting Median Salary"];
+            })]);
+            y.domain(data.map(function (d) {
+                return d["Undergraduate Major"];
+            }));
 
 
-    function type(d) {
-        d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
-        return d;
+            var bar = svg.selectAll("g.bar")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "bar")
+                .attr("transform", function (d) {
+                    return "translate(0," + y(d["Undergraduate Major"]) + ")";
+                })
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
+
+            bar.append("rect")
+                .attr("width", function (d) {
+                    return x(d["Starting Median Salary"]);
+                })
+                .attr("height", y.bandwidth());
+
+            bar.append("text")
+                .attr("class", "value")
+                .attr("x", function (d) {
+                    return x(d["Starting Median Salary"]);
+                })
+                .attr("y", y.bandwidth() / 2)
+                .attr("dx", -5)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "end")
+                .text(function (d) {
+                    return formatDollar(d["Starting Median Salary"]);
+                })
+                .style("font-size", "14px")
+                .style("font-family", "Montserrat");
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+
+        });
     }
 
+    function midCareerDegree() {
+
+        document.getElementById("graph_title").innerHTML = "Mid-Career Median Salary by Degree";
+        d3.selectAll("svg").remove();
+
+        tip
+            .html(function (d) {
+                return "<strong>Degree:</strong> <span style='color:lightskyblue'>" + d["Undergraduate Major"] + "</span><br/>" +
+                    "<strong>Starting Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Starting Median Salary"]) + "</span><br/>" +
+                    "<strong>Mid-Career Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Mid-Career Median Salary"]) + "</span>";
+            });
+
+        var svg = d3.select("#svg_container").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("dataset/degrees-that-pay-back.csv", function (error, data) {
+
+            svg.call(tip);
+
+            if (error) throw error;
+
+            data.forEach(function (d) {
+                d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
+                d["Mid-Career Median Salary"] = +d["Mid-Career Median Salary"].replace("$", "").replace(",", "");
+            });
+
+            data.sort(function (a, b) {
+                return b["Mid-Career Median Salary"] - a["Mid-Career Median Salary"];
+            });
+
+            x.domain([0, d3.max(data, function (d) {
+                return d["Mid-Career Median Salary"];
+            })]);
+            y.domain(data.map(function (d) {
+                return d["Undergraduate Major"];
+            }));
+
+
+            var bar = svg.selectAll("g.bar")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "bar")
+                .attr("transform", function (d) {
+                    return "translate(0," + y(d["Undergraduate Major"]) + ")";
+                })
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
+
+            bar.append("rect")
+                .attr("width", function (d) {
+                    return x(d["Mid-Career Median Salary"]);
+                })
+                .attr("height", y.bandwidth());
+
+            bar.append("text")
+                .attr("class", "value")
+                .attr("x", function (d) {
+                    return x(d["Mid-Career Median Salary"]);
+                })
+                .attr("y", y.bandwidth() / 2)
+                .attr("dx", -5)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "end")
+                .text(function (d) {
+                    return formatDollar(d["Mid-Career Median Salary"]);
+                })
+                .style("font-size", "14px")
+                .style("font-family", "Montserrat");
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+
+        });
+    }
+
+    function midCareerTHDegree(percentile) {
+        document.getElementById("graph_title").innerHTML = percentile + " by Degree";
+        d3.selectAll("svg").remove();
+
+        tip
+            .html(function (d) {
+                return "<strong>Degree:</strong> <span style='color:lightskyblue'>" + d["Undergraduate Major"] + "</span><br/>" +
+                    "<strong>Starting Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Starting Median Salary"]) + "</span><br/>" +
+                    "<strong>Mid-Career Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Mid-Career Median Salary"]) + "</span><br/>" +
+                    "<strong>" + percentile + ":</strong> <span style='color:greenyellow'>" + formatDollar(d[percentile]) + "</span>";
+            });
+
+        var svg = d3.select("#svg_container").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("dataset/degrees-that-pay-back.csv", function (error, data) {
+
+            svg.call(tip);
+
+            if (error) throw error;
+
+            data.forEach(function (d) {
+                d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
+                d["Mid-Career Median Salary"] = +d["Mid-Career Median Salary"].replace("$", "").replace(",", "");
+                d[percentile] = +d[percentile].replace("$", "").replace(",", "");
+            });
+
+            data.sort(function (a, b) {
+                return b[percentile] - a[percentile];
+            });
+
+            x.domain([0, d3.max(data, function (d) {
+                return d[percentile];
+            })]);
+            y.domain(data.map(function (d) {
+                return d["Undergraduate Major"];
+            }));
+
+
+            var bar = svg.selectAll("g.bar")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "bar")
+                .attr("transform", function (d) {
+                    return "translate(0," + y(d["Undergraduate Major"]) + ")";
+                })
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
+
+            bar.append("rect")
+                .attr("width", function (d) {
+                    return x(d[percentile]);
+                })
+                .attr("height", y.bandwidth());
+
+            bar.append("text")
+                .attr("class", "value")
+                .attr("x", function (d) {
+                    return x(d[percentile]);
+                })
+                .attr("y", y.bandwidth() / 2)
+                .attr("dx", -5)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "end")
+                .text(function (d) {
+                    return formatDollar(d[percentile]);
+                })
+                .style("font-size", "14px")
+                .style("font-family", "Montserrat");
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+
+        });
+    }
+
+    window.onload = midCareerDegree();
+
+    d3.select('#degree_btn')
+        .on("click", function () {
+            $("#degree").show();
+            $("#uni").hide();
+            $("#region").hide();
+        });
+
+    d3.select('#uni_btn')
+        .on("click", function () {
+            $("#degree").hide();
+            $("#uni").show();
+            $("#region").hide();
+        });
+
+    d3.select('#region_btn')
+        .on("click", function () {
+            $("#degree").hide();
+            $("#uni").hide();
+            $("#region").show();
+        });
+
+    $('#degree').change(function(){
+
+        switch ($(this).val()) {
+            case "1":
+                startCareerDegree();
+                break;
+            case "2":
+                midCareerDegree();
+                break;
+            case "3":
+                midCareerTHDegree("Mid-Career 10th Percentile Salary");
+                break;
+            case "4":
+                midCareerTHDegree("Mid-Career 25th Percentile Salary");
+                break;
+            case "5":
+                midCareerTHDegree("Mid-Career 75th Percentile Salary");
+                break;
+            case "6":
+                midCareerTHDegree("Mid-Career 90th Percentile Salary");
+                break;
+            default:
+                break;
+        }
+    });
 </script>
 
 </body>
