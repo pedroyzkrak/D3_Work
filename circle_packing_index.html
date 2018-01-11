@@ -141,11 +141,9 @@
                 salary_rating += element.value;
                 region = element.parent.data.name;
                 count+=1
-
-
             });
             salary_rating = (salary_rating/count).toFixed(2);
-            return "<strong>Region:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average Starting Median Salary</strong> <span style='color:blue'>" + "$" + salary_rating;
+            return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average Starting Median Salary</strong> <span style='color:blue'>" + "$" + salary_rating;
 
         });
 
