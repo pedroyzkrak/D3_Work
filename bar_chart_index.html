@@ -16,23 +16,32 @@
             font: 10px sans-serif;
         }
 
-        .axis path,
-        .axis line {
-            fill: none;
-            stroke: #000;
+        .bar rect {
+            fill: steelblue;
+        }
+
+            fill: white;
+        }
+
+        .axis {
             shape-rendering: crispEdges;
         }
 
-        .bar {
-            fill: orange;
+        .axis path {
+            fill: none;
         }
 
-        .bar:hover {
-            fill: orangered;
+        .x.axis line {
+            stroke: #fff;
+            stroke-opacity: .8;
         }
 
-        .x.axis path {
-            display: none;
+        .y.axis path {
+            stroke: black;
+        }
+
+        .bar rect:hover {
+            fill: blue;
         }
 
         .d3-tip {
@@ -100,6 +109,31 @@
             margin-left: 50px;
         }
 
+        .button {
+            padding: 15px 25px;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            color: #fff;
+            background-color: cornflowerblue;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 9px #999;
+            margin: 15px 15px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: royalblue
+        }
+
+        .button:active {
+            background-color: steelblue;
+            box-shadow: 0 5px #777;
+            transform: translateY(4px);
+        }
+
     </style>
 </head>
 <body>
@@ -122,11 +156,16 @@
     </div>
 </nav>
 
-<div id="temp" class="container-fluid bg-grey">
+<div class="container-fluid bg-grey">
     <div class="row">
-            <div class="col-sm-8">
-            <input type="button" onclick="click()"/>
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
+            <h3>Filtros</h3>
+            <input type="button" class="button" value="Degree"/>
+            <input type="button" class="button" value="University"/>
+            <input type="button" class="button" value="Region"/>
         </div>
+        <div class="col-md-8" id="svg_container"></div>
     </div>
 </div>
 
@@ -135,37 +174,28 @@
 
 <script>
 
-    var margin = {top: 50, right: 40, bottom: 150, left: 100},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+    var margin = {top: 30, right: 10, bottom: 10, left: 200},
+        width = 960 - margin.right - margin.left,
+        height = 930 - margin.top - margin.bottom;
 
-    var formatDollar = d3.format("$");
+    var formatDollar = d3.format("$,.0f");
 
-    var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .1);
+    var x = d3.scale.linear().range([0, width]),
+        y = d3.scale.ordinal().rangeRoundBands([0, height], .1);
 
-    var y = d3.scale.linear()
-        .range([height, 0]);
-
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom");
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .tickFormat(formatDollar);
+    var xAxis = d3.svg.axis().scale(x).orient("top").tickSize(-height).tickFormat(formatDollar),
+        yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
 
     var tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            return "<strong>Degree:</strong> <span style='color:red'>" + d["Undergraduate Major"] +
-                "</span><br/><strong>Starting Median Salary:</strong> <span style='color:darkgreen'>" + "$" +
-                d["Starting Median Salary"] + "</span>";
+            return "<strong>Degree:</strong> <span style='color:lightskyblue'>" + d["Undergraduate Major"] + "</span><br/>" +
+                "<strong>Starting Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Starting Median Salary"]) + "</span><br/>" +
+                "<strong>Mid-Career Median Salary:</strong> <span style='color:greenyellow'>" + formatDollar(d["Mid-Career Median Salary"]) + "</span>";
         });
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#svg_container").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -173,51 +203,64 @@
 
     svg.call(tip);
 
-    d3.csv("dataset/degrees-that-pay-back.csv", type, function (error, data) {
-        x.domain(data.map(function (d) {
-            return d["Undergraduate Major"];
-        }));
-        y.domain([0, d3.max(data, function (d) {
+    d3.csv("dataset/degrees-that-pay-back.csv", function (error, data) {
+
+        if (error) throw error;
+
+        data.forEach(function (d) {
+            d["Starting Median Salary"] = +d["Starting Median Salary"].replace("$", "").replace(",", "");
+            d["Mid-Career Median Salary"] = +d["Mid-Career Median Salary"].replace("$", "").replace(",", "");
+        });
+
+        data.sort(function (a, b) {
+            return b["Starting Median Salary"] - a["Starting Median Salary"];
+        });
+
+        x.domain([0, d3.max(data, function (d) {
             return d["Starting Median Salary"];
         })]);
+        y.domain(data.map(function (d) {
+            return d["Undergraduate Major"];
+        }));
+
+
+        var bar = svg.selectAll("g.bar")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("class", "bar")
+            .attr("transform", function (d) {
+                return "translate(0," + y(d["Undergraduate Major"]) + ")";
+            })
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
+
+        bar.append("rect")
+            .attr("width", function (d) {
+                return x(d["Starting Median Salary"]);
+            })
+            .attr("height", y.rangeBand());
+
+        bar.append("text")
+            .attr("class", "value")
+            .attr("x", function (d) {
+                return x(d["Starting Median Salary"]);
+            })
+            .attr("y", y.rangeBand() / 2)
+            .attr("dx", -3)
+            .attr("dy", ".35em")
+            .attr("text-anchor", "end")
+            .text(function (d) {
+                return formatDollar(d["Starting Median Salary"]);
+            });
 
         svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis)
-            .selectAll("text")
-            .style("text-anchor", "end")
-            .attr("dx", "-.8em")
-            .attr("dy", ".15em")
-            .attr("transform", "rotate(-45)");;
+            .call(xAxis);
 
         svg.append("g")
             .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("y", -15)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Salary");
-
-        svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", function (d) {
-                return x(d["Undergraduate Major"]);
-            })
-            .attr("width", x.rangeBand())
-            .attr("y", function (d) {
-                return y(d["Starting Median Salary"]);
-            })
-            .attr("height", function (d) {
-                return height - y(d["Starting Median Salary"]);
-            })
-            .attr()
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide)
+            .call(yAxis);
 
     });
 
