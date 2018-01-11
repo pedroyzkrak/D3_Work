@@ -55,7 +55,7 @@
       //*************************************************
       // SETUP DATA VIZ
       //*************************************************
-      var width = 960, height = 700, radius = 300;
+      var width = 960, height = 720, radius = 350;
 
       var color = d3.scale.ordinal().range(['#74E600','#26527C','#61D7A4','#6CAC2B','#408AD2','#218359','#36D792','#679ED2','#B0F26D','#4B9500','#98F23D','#04396C','#007241']);
 
@@ -63,7 +63,17 @@
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            return "<strong>Region:</strong> <span style='color:red'>" + d["Region"] + "</span><br/><strong>Starting Median Salary:</strong> <span style='color:darkgreen'>" + "$" + d["Starting Median Salary"] + "</span>";
+            if(d["Region"]==null){
+                avg = 0;
+                counter = 0;
+                _.each(d.children, function(num) {
+                    avg += +num['Starting Median Salary'];
+                    counter+=1;
+                });
+                avg = avg / counter;
+                return "<strong>Region:</strong> <span style='color:red'>" + d["name"] + "</span><br/><strong>Avg. Starting Median Salary:</strong> <span style='color:blue'>" + "$" + avg;
+            }
+            return "<strong>Region:</strong> <span style='color:red'>" + d["Region"] + "</span><br/><strong>University:</strong> <span style='color:yellow'>" +  d["School Name"] + "</span><br/><strong>Starting Median Salary:</strong> <span style='color:green'>" + "$" + d["Starting Median Salary"] + "</span>";
         });
 
       var svg = d3.select("body").append("svg")
@@ -82,7 +92,7 @@
       var arc = d3.svg.arc()
         .startAngle(function(d) { return d.x; })
         .endAngle(function(d) { return d.x + d.dx; })
-        .innerRadius(function(d) { return Math.sqrt(d.y); })
+        .innerRadius(function(d) { return Math.sqrt(d.y)-100; })
         .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
 
       //*************************************************
