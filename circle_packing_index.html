@@ -95,14 +95,17 @@
 
         svg {
             margin-top: 50px;
+            margin-bottom: 50px;
             margin-left:auto;
             margin-right:auto;
             display:block;
         }
 
     </style>
+
 </head>
 <body>
+
 <!--NAVBAR-->
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -131,8 +134,19 @@
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            console.log(d);
-            return "suck";
+            salary_rating = 0;
+            count = 0;
+            _.each(d.children, function(element,index, list) {
+                console.log(element);
+                salary_rating += element.value;
+                region = element.parent.data.name;
+                count+=1
+
+
+            });
+            salary_rating = (salary_rating/count).toFixed(2);
+            return "<strong>Region:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average Starting Median Salary</strong> <span style='color:blue'>" + "$" + salary_rating;
+
         });
 
     var svg = d3.select("svg"),
@@ -203,7 +217,7 @@
 
     root = d3.hierarchy(preppedData)
         .sum(function (d) {
-            return d['Starting Median Salary'] + d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary']+ d['Mid-Career Median Salary'];
+            return d['Starting Median Salary'];
         })
         .sort(function (a, b) {
             return b.value - a.value;
@@ -214,7 +228,6 @@
     var focus = root,
         nodes = pack(root).descendants(),
         view;
-    console.log(focus);
     var circle = g.selectAll("circle")
         .data(nodes)
         .enter().append("circle")
