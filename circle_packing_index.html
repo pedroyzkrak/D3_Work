@@ -19,7 +19,7 @@
           padding: 12px;
           background: rgba(0, 0, 0, 0.8);
           color: #fff;
-          border-radius: 2px;
+          border-radius: 5px;
         }
 
         /* Creates a small triangle extender for the tooltip */
@@ -120,8 +120,8 @@
             border: none;
             border-radius: 8px;
             box-shadow: 0 9px #999;
-            margin: 15px 15px;
-            width: 100%;
+            margin: 15px -10px;
+            display: inline-block;
         }
 
         .button:hover {
@@ -178,227 +178,238 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-2">
-            <h3>Filtros</h3>
-            <input type="button" class="button" value="College Degree" id="degree_btn"/>
-            <select name='type' id='degree' hidden>
-                <option value='0' selected disabled hidden>Choose filter...</option>
-                <option value='1'>Starting Median Salary</option>
-                <option value='2'>Mid-Career Median Salary</option>
-                <option value='3'>Mid-Career 10th Percentile Salary</option>
-                <option value='4'>Mid-Career 25th Percentile Salary</option>
-                <option value='5'>Mid-Career 75th Percentile Salary</option>
-                <option value='6'>Mid-Career 90th Percentile Salary</option>
-            </select>
-            <input type="button" class="button" value="College Type" id="uni_btn"/>
-            <select name='type' id='uni' hidden>
-                <option value='0' selected disabled hidden>Choose filter...</option>
-                <option value='1'>Starting Median Salary</option>
-                <option value='2'>Mid-Career Median Salary</option>
-                <option value='3'>Mid-Career 10th Percentile Salary</option>
-                <option value='4'>Mid-Career 25th Percentile Salary</option>
-                <option value='5'>Mid-Career 75th Percentile Salary</option>
-                <option value='6'>Mid-Career 90th Percentile Salary</option>
-            </select>
-            <input type="button" class="button" value="Region" id="region_btn"/>
-            <select name='type' id='region' hidden>
-                <option value='0' selected disabled hidden>Choose filter...</option>
-                <option value='1'>Starting Median Salary</option>
-                <option value='2'>Mid-Career Median Salary</option>
-                <option value='3'>Mid-Career 10th Percentile Salary</option>
-                <option value='4'>Mid-Career 25th Percentile Salary</option>
-                <option value='5'>Mid-Career 75th Percentile Salary</option>
-                <option value='6'>Mid-Career 90th Percentile Salary</option>
-            </select>
+            <h3>Filters</h3>
+            <input type="button" class="button" value="Starting Median Salary" id="sms"/>
+            <input type="button" class="button" value="Mid-Career Median Salary" id="mms"/>
+            <input type="button" class="button" value="Mid-Career 10th Percentile Salary" id="mps10"/>
+            <input type="button" class="button" value="Mid-Career 25th Percentile Salary" id="mps25"/>
+            <input type="button" class="button" value="Mid-Career 75th Percentile Salary" id="mps75"/>
+            <input type="button" class="button" value="Mid-Career 90th Percentile Salary" id="mps90"/>
         </div>
         <div class="col-md-9" id="svg_container">
             <h3 id="graph_title"></h3>
             <svg width="900" height="900"></svg>
         </div>
+
     </div>
 </div>
 
 <script>
+    function circles_graph(filter) {
+        document.getElementById("graph_title").innerHTML = "Salaries by Region: "+filter;
+        if (svg!=null)
+            d3.selectAll("svg").remove();
 
-    var tip = d3.tip()
-        .attr('class', 'd3-tip')
-        .offset([-10, 0])
-        .html(function (d) {
-            salary_rating = 0;
-            count = 0;
-            _.each(d.children, function(element,index, list) {
-                console.log(element);
-                salary_rating += element.value;
-                region = element.parent.data.name;
-                count+=1
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function (d) {
+                salary_rating = 0;
+                count = 0;
+                _.each(d.children, function(element,index, list) {
+                    console.log(element);
+                    salary_rating += element.value;
+                    region = element.parent.data.name;
+                    count+=1
+                });
+                salary_rating = (salary_rating/count).toFixed(2);
+                return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average "+filter+"</strong> <span style='color:blue'>" + "$" + salary_rating;
+
             });
-            salary_rating = (salary_rating/count).toFixed(2);
-            return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average Starting Median Salary</strong> <span style='color:blue'>" + "$" + salary_rating;
 
-        });
+        var svg = d3.select("svg"),
+            margin = 20,
+            diameter = +svg.attr("width"),
+            g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
-    var svg = d3.select("svg"),
-        margin = 20,
-        diameter = +svg.attr("width"),
-        g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+        svg.call(tip);
 
-    svg.call(tip);
+        var color = d3.scaleLinear()
+            .domain([0, 5])
+            .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+            .interpolate(d3.interpolateHcl);
 
-    var color = d3.scaleLinear()
-        .domain([-1, 5])
-        .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-        .interpolate(d3.interpolateHcl);
+        var pack = d3.pack()
+            .size([diameter - margin, diameter - margin])
+            .padding(2);
 
-    var pack = d3.pack()
-        .size([diameter - margin, diameter - margin])
-        .padding(2);
-
-     d3.csv("dataset/salaries-by-region.csv", function(error, data) {
-        _.each(data, function(element, index, list){
-            element['Starting Median Salary'] = +element['Starting Median Salary'].replace("$","").replace(",","");
-            element['Mid-Career Median Salary'] = +element['Mid-Career Median Salary'].replace("$","").replace(",","");
-            element['Percent change from Starting to Mid-Career Salary'] = +element['Percent change from Starting to Mid-Career Salary'];
-            element['Mid-Career 10th Percentile Salary'] = +element['Mid-Career 10th Percentile Salary'].replace("$","").replace(",","");
-            element['Mid-Career 25th Percentile Salary'] = +element['Mid-Career 25th Percentile Salary'].replace("$","").replace(",","");
-            element['Mid-Career 75th Percentile Salary'] = +element['Mid-Career 75th Percentile Salary'].replace("$","").replace(",","");
-            element['Mid-Career 90th Percentile Salary'] = +element['Mid-Career 90th Percentile Salary'].replace("$","").replace(",","");
+         d3.csv("dataset/salaries-by-region.csv", function(error, data) {
+            _.each(data, function(element, index, list){
+                element['Starting Median Salary'] = +element['Starting Median Salary'].replace("$","").replace(",","");
+                element['Mid-Career Median Salary'] = +element['Mid-Career Median Salary'].replace("$","").replace(",","");
+                element['Percent change from Starting to Mid-Career Salary'] = +element['Percent change from Starting to Mid-Career Salary'];
+                element['Mid-Career 10th Percentile Salary'] = +element['Mid-Career 10th Percentile Salary'].replace("$","").replace(",","");
+                element['Mid-Career 25th Percentile Salary'] = +element['Mid-Career 25th Percentile Salary'].replace("$","").replace(",","");
+                element['Mid-Career 75th Percentile Salary'] = +element['Mid-Career 75th Percentile Salary'].replace("$","").replace(",","");
+                element['Mid-Career 90th Percentile Salary'] = +element['Mid-Career 90th Percentile Salary'].replace("$","").replace(",","");
 
 
-        });
+            });
 
-    //*************************************************
-    // THE FUNCTION
-    //*************************************************
-    function genJSON(csvData, groups) {
+        //*************************************************
+        // THE FUNCTION
+        //*************************************************
+        function genJSON(csvData, groups) {
 
-      var genGroups = function(data) {
-        return _.map(data, function(element, index) {
-          return { name : index, children : element };
-        });
-      };
+          var genGroups = function(data) {
+            return _.map(data, function(element, index) {
+              return { name : index, children : element };
+            });
+          };
 
-      var nest = function(node, curIndex) {
-        if (curIndex === 0) {
-          node.children = genGroups(_.groupBy(csvData, groups[0]));
-          _.each(node.children, function (child) {
-            nest(child, curIndex + 1);
-          });
+          var nest = function(node, curIndex) {
+            if (curIndex === 0) {
+              node.children = genGroups(_.groupBy(csvData, groups[0]));
+              _.each(node.children, function (child) {
+                nest(child, curIndex + 1);
+              });
+            }
+            else {
+              if (curIndex < groups.length) {
+                node.children = genGroups(
+                  _.groupBy(node.children, groups[curIndex])
+                );
+                _.each(node.children, function (child) {
+                  nest(child, curIndex + 1);
+                });
+              }
+            }
+            return node;
+          };
+          return nest({}, 0);
         }
-        else {
-          if (curIndex < groups.length) {
-            node.children = genGroups(
-              _.groupBy(node.children, groups[curIndex])
-            );
-            _.each(node.children, function (child) {
-              nest(child, curIndex + 1);
-            });
-          }
-        }
-        return node;
-      };
-      return nest({}, 0);
-    }
-    //*************************************************
-    // CALL THE FUNCTION
-    //*************************************************
-    var preppedData = genJSON(data, ['Region','School Name'])
+        //*************************************************
+        // CALL THE FUNCTION
+        //*************************************************
+        var preppedData = genJSON(data, ['Region','School Name'])
 
-    root = d3.hierarchy(preppedData)
-        .sum(function (d) {
-            return d['Starting Median Salary'];
-        })
-        .sort(function (a, b) {
-            return b.value - a.value;
-        });
-
-
-
-    var focus = root,
-        nodes = pack(root).descendants(),
-        view;
-    var circle = g.selectAll("circle")
-        .data(nodes)
-        .enter().append("circle")
-        .attr("class", function (d) {
-            return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
-        })
-        .style("fill", function (d) {
-            return d.children ? color(d.depth) : null;
-        })
-        .on("click", function (d) {
-            if (focus !== d) zoom(d), d3.event.stopPropagation();
-        })
-        .on('mouseover', tip.show)
-        .on('mouseout', tip.hide);
-
-    var text = g.selectAll("text")
-        .data(nodes)
-        .enter().append("text")
-        .attr("class", "label")
-        .style("fill-opacity", function (d) {
-            return d.parent === root ? 1 : 0;
-        })
-        .style("font-size", function (d) {
-            if(d.parent == root)
-                return "10px";
-            else
-                return "7px";
-        })
-        .style("display", function (d) {
-            return d.parent === root ? "inline" : "none";
-        })
-        .text(function (d) {
-            if(d.data.name != null)
-                return d.data.name;
-        });
-
-    var node = g.selectAll("circle,text");
-
-    svg
-        .style("background", color(-1))
-        .on("click", function () {
-            zoom(root);
-        });
-    zoomTo([root.x, root.y, root.r * 2 + margin]);
-
-    function zoom(d) {
-        var focus0 = focus;
-        focus = d;
-
-        var transition = d3.transition()
-            .duration(d3.event.altKey ? 7500 : 750)
-            .tween("zoom", function (d) {
-                var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
-                return function (t) {
-                    zoomTo(i(t));
-                };
-            });
-
-        transition.selectAll("text")
-            .filter(function (d) {
-                return d.parent === focus || this.style.display === "inline";
+        root = d3.hierarchy(preppedData)
+            .sum(function (d) {
+                return d[filter];
             })
+            .sort(function (a, b) {
+                return b.value - a.value;
+            });
+
+
+
+        var focus = root,
+            nodes = pack(root).descendants(),
+            view;
+        var circle = g.selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("class", function (d) {
+                return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
+            })
+            .style("fill", function (d) {
+                return d.children ? color(d.depth) : null;
+            })
+            .on("click", function (d) {
+                if (focus !== d) zoom(d), d3.event.stopPropagation();
+            })
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
+
+        var text = g.selectAll("text")
+            .data(nodes)
+            .enter().append("text")
+            .attr("class", "label")
             .style("fill-opacity", function (d) {
-                return d.parent === focus ? 1 : 0;
+                return d.parent === root ? 1 : 0;
             })
-            .on("start", function (d) {
-                if (d.parent === focus) this.style.display = "inline";
+            .style("font-size", function (d) {
+                if(d.parent == root)
+                    return "10px";
+                else
+                    return "7px";
             })
-            .on("end", function (d) {
-                if (d.parent !== focus) this.style.display = "none";
+            .style("display", function (d) {
+                return d.parent === root ? "inline" : "none";
+            })
+            .text(function (d) {
+                if(d.data.name != null)
+                    return d.data.name;
             });
-     }
 
-        function zoomTo(v) {
-            var k = diameter / v[2];
-            view = v;
-            node.attr("transform", function (d) {
-                return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")";
+        var node = g.selectAll("circle,text");
+
+        svg
+            .style("background", "#F6F6F6")
+            .on("click", function () {
+                zoom(root);
             });
-            circle.attr("r", function (d) {
-                return d.r * k;
-            });
-        }
-    });
+        zoomTo([root.x, root.y, root.r * 2 + margin]);
+
+        function zoom(d) {
+            var focus0 = focus;
+            focus = d;
+
+            var transition = d3.transition()
+                .duration(d3.event.altKey ? 7500 : 750)
+                .tween("zoom", function (d) {
+                    var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
+                    return function (t) {
+                        zoomTo(i(t));
+                    };
+                });
+
+            transition.selectAll("text")
+                .filter(function (d) {
+                    return d.parent === focus || this.style.display === "inline";
+                })
+                .style("fill-opacity", function (d) {
+                    return d.parent === focus ? 1 : 0;
+                })
+                .on("start", function (d) {
+                    if (d.parent === focus) this.style.display = "inline";
+                })
+                .on("end", function (d) {
+                    if (d.parent !== focus) this.style.display = "none";
+                });
+         }
+
+            function zoomTo(v) {
+                var k = diameter / v[2];
+                view = v;
+                node.attr("transform", function (d) {
+                    return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")";
+                });
+                circle.attr("r", function (d) {
+                    return d.r * k;
+                });
+            }
+        });
+    }
+
+    window.onload = circles_graph("Starting Median Salary");
+    document.getElementById('sms').onclick = function() {
+        circles_graph("Starting Median Salary");
+    }
+
+    document.getElementById('mms').onclick = function() {
+        circles_graph("Mid-Career Median Salary");
+    }
+
+    document.getElementById('mps10').onclick = function() {
+        circles_graph("Mid-Career 10th Percentile Salary");
+    }
+
+    document.getElementById('mps25').onclick = function() {
+        circles_graph("Mid-Career 25th Percentile Salary");
+    }
+
+    document.getElementById('mps75').onclick = function() {
+        circles_graph("Mid-Career 75th Percentile Salary");
+    }
+
+    document.getElementById('mps90').onclick = function() {
+        circles_graph("Mid-Career 90th Percentile Salary");
+    }
+
+
+
+
 
 </script>
 </body>
