@@ -101,6 +101,54 @@
             display:block;
         }
 
+        .container-fluid {
+             padding: 60px 50px;
+        }
+
+        .bg-grey {
+            background-color: #f6f6f6;
+        }
+
+        .button {
+            padding: 15px 25px;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            color: #fff;
+            background-color: cornflowerblue;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 9px #999;
+            margin: 15px 15px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: royalblue
+        }
+
+        .button:active {
+            background-color: steelblue;
+            box-shadow: 0 5px #777;
+            transform: translateY(4px);
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        select {
+            background: transparent;
+            width: 100%;
+            padding: 5px;
+            font-size: 16px;
+            line-height: 1;
+            border: 0;
+            border-radius: 0;
+            height: 34px;
+        }
+
     </style>
 
 </head>
@@ -126,7 +174,48 @@
     </div>
 </nav>
 
-<svg width="900" height="900"></svg>
+<div class="container-fluid bg-grey">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <h3>Filtros</h3>
+            <input type="button" class="button" value="College Degree" id="degree_btn"/>
+            <select name='type' id='degree' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="College Type" id="uni_btn"/>
+            <select name='type' id='uni' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="Region" id="region_btn"/>
+            <select name='type' id='region' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+        </div>
+        <div class="col-md-9" id="svg_container">
+            <h3 id="graph_title"></h3>
+            <svg width="900" height="900"></svg>
+        </div>
+    </div>
+</div>
 
 <script>
 
