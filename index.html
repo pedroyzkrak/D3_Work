@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script type="text/javascript" src="lib/underscore-min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+
+        body {
+            font: 10px sans-serif;
+            font-family: 'Cabin', sans-serif;
+        }
+
+        .bar text.value {
+            fill: white;
+        }
+
+        .y.axis {
+            font-size: 12px;
+            font-family: Montserrat, sans-serif;
+        }
+
+        .axis path {
+            fill: none;
+        }
+
+        .x.axis line {
+            stroke: #fff;
+            stroke-opacity: .8;
+        }
+
+        .y.axis path {
+            stroke: black;
+        }
+
+        .bar rect:hover {
+            fill: blue;
+        }
+
+        .logo {
+            color: #2c4868;
+            font-size: 200px;
+        }
+
+        .d3-tip {
+            line-height: 1;
+            font-weight: bold;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 2px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+
+        /* Style northward tooltips differently */
+        .d3-tip.n:after {
+            margin: -1px 0 0 0;
+            top: 100%;
+            left: 0;
+        }
+
+        .node {
+            cursor: pointer;
+        }
+
+        .node:hover {
+            stroke: #000;
+            stroke-width: 1.5px;
+        }
+
+        .node--leaf {
+            fill: white;
+        }
+
+        .label {
+            font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+            text-anchor: middle;
+            text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+        }
+
+        .label,
+        .node--root,
+        .node--leaf {
+            pointer-events: none;
+        }
+
+        .navbar {
+            font-family: "Montserrat", sans-serif;
+            background-color: #2c4868;
+            z-index: 9999;
+            font-size: 12px !important;
+            line-height: 1.42857143 !important;
+            letter-spacing: 2px;
+        }
+
+        .navbar li a, .navbar .navbar-brand {
+            color: #fff !important;
+        }
+
+        .navbar-nav li a:hover, .navbar-nav li.active a {
+            color: #2c4868 !important;
+            background-color: #fff !important;
+        }
+
+        .navbar-default .navbar-toggle {
+            border-color: transparent;
+            color: #fff !important;
+        }
+
+        .container-fluid {
+            padding: 60px 50px;
+        }
+
+        .bg-grey {
+            background-color: #f6f6f6;
+        }
+
+        svg {
+            margin-top: 50px;
+            margin-bottom: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .button {
+            padding: 15px 25px;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            color: #fff;
+            background-color: cornflowerblue;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 9px #999;
+            margin: 15px 15px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: royalblue
+        }
+
+        .button:active {
+            background-color: steelblue;
+            box-shadow: 0 5px #777;
+            transform: translateY(4px);
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        select {
+            background: transparent;
+            width: 100%;
+            padding: 5px;
+            font-size: 16px;
+            line-height: 1;
+            border: 0;
+            border-radius: 0;
+            height: 34px;
+        }
+
+    </style>
+</head>
+<body>
+<!--NAVBAR-->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">College Salaries</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="public" style="display: none" id="home">HOME</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a class="public" id="link_bar">BAR CHART</a></li>
+                <li><a class="public" id="link_circle">CIRCLE PACKING</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!--INFO-->
+<div id="about" class="container-fluid bg-grey">
+    <div class="row">
+        <div class="col-sm-8">
+            <h2>College Salaries</h2><br>
+            <h4>*INFO*</h4><br>
+            <p>*SOME MORE INFO*</p>
+        </div>
+        <div class="col-sm-4">
+            <span class="glyphicon glyphicon-info-sign logo"></span>
+        </div>
+    </div>
+</div>
+
+<!--BAR CHART-->
+<div id="bar_chart" class="container-fluid bg-grey" hidden>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <h3>Filters</h3>
+            <input type="button" class="button" value="College Degree" id="degree_btn"/>
+            <select name='type' id='degree' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>x
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="College Name" id="uni_btn"/>
+            <select name='type' id='uni' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+        </div>
+        <div class="col-md-9" id="svg_container">
+            <h3 id="graph_title"></h3>
+        </div>
+    </div>
+</div>
+
+<!--CIRCLES -->
+<div id="circles" class="container-fluid bg-grey" hidden>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <h3>Filters</h3>
+            <input type="button" class="button" value="Starting Median Salary" id="sms"/>
+            <input type="button" class="button" value="Mid-Career Median Salary" id="mms"/>
+            <input type="button" class="button" value="Mid-Career 10th Percentile Salary" id="mps10"/>
+            <input type="button" class="button" value="Mid-Career 25th Percentile Salary" id="mps25"/>
+            <input type="button" class="button" value="Mid-Career 75th Percentile Salary" id="mps75"/>
+            <input type="button" class="button" value="Mid-Career 90th Percentile Salary" id="mps90"/>
+        </div>
+        <div class="col-md-9" id="svg_circle_container">
+            <h3 id="graph_circle_title"></h3>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="lib/d3-tip.js"></script>
+
+<!--BAR CHART SCRIPTING-->
+<script type="text/javascript" src="lib/bar_chart.js"></script>
+
+<!--CIRCLES SCRIPTING-->
+<script type="text/javascript" src="lib/circles.js"></script>
+
+<!--SITE SCRIPTING-->
+<script type="text/javascript" src="lib/site.js"></script>
+
+</body>
+</html>
