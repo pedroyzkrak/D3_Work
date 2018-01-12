@@ -120,7 +120,7 @@
             border: none;
             border-radius: 8px;
             box-shadow: 0 9px #999;
-            margin: 15px -10px;
+            margin: 15px -50px;
             display: inline-block;
         }
 
@@ -195,6 +195,7 @@
 
 <script>
 
+    var formatDollar = d3.format("$,.0f");
 
     function circles_graph(filter) {
         document.getElementById("graph_title").innerHTML = "Salaries by Region: " + filter;
@@ -213,7 +214,7 @@
                     count += 1
                 });
                 salary_rating = (salary_rating / count).toFixed(2);
-                return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average " + filter + "</strong> <span style='color:blue'>" + "$" + salary_rating;
+                return "<strong><span style='color:lightskyblue'>Region/University:</strong></span><span style='color:greenyellow'>" + region + "</span><br/><span style='color:lightskyblue'><strong>Average " + filter + ": </strong></span> <span style='color:greenyellow'>" + formatDollar(salary_rating) + "</span>";
 
             });
 
@@ -227,8 +228,8 @@
         svg.call(tip);
 
         var color = d3.scaleLinear()
-            .domain([0, 5])
-            .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+            .domain([-3, 2])
+            .range(["hsl(152,80%,80%)", "hsl(240,30%,40%)"])
             .interpolate(d3.interpolateHcl);
 
         var pack = d3.pack()
