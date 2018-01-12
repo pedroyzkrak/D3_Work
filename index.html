@@ -355,12 +355,26 @@
     <div class="row">
         <div class="col-md-3">
             <h3>Filters</h3>
-            <input type="button" class="button" value="Starting Median Salary" id="sms"/>
-            <input type="button" class="button" value="Mid-Career Median Salary" id="mms"/>
-            <input type="button" class="button" value="Mid-Career 10th Percentile Salary" id="mps10"/>
-            <input type="button" class="button" value="Mid-Career 25th Percentile Salary" id="mps25"/>
-            <input type="button" class="button" value="Mid-Career 75th Percentile Salary" id="mps75"/>
-            <input type="button" class="button" value="Mid-Career 90th Percentile Salary" id="mps90"/>
+            <input type="button" class="button" value="Group by Region" id="region_btn"/>
+            <select name='type' id='region' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
+            <input type="button" class="button" value="Group by School Type" id="type_btn"/>
+            <select name='type' id='type' hidden>
+                <option value='0' selected disabled hidden>Choose filter...</option>
+                <option value='1'>Starting Median Salary</option>
+                <option value='2'>Mid-Career Median Salary</option>
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
+                <option value='4'>Mid-Career 25th Percentile Salary</option>
+                <option value='5'>Mid-Career 75th Percentile Salary</option>
+                <option value='6'>Mid-Career 90th Percentile Salary</option>
+            </select>
         </div>
         <div class="col-md-9" id="svg_circle_container">
             <h3 id="graph_circle_title"></h3>
