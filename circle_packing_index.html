@@ -14,32 +14,32 @@
 
     <style>
         .d3-tip {
-          line-height: 1;
-          font-weight: bold;
-          padding: 12px;
-          background: rgba(0, 0, 0, 0.8);
-          color: #fff;
-          border-radius: 5px;
+            line-height: 1;
+            font-weight: bold;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
         }
 
         /* Creates a small triangle extender for the tooltip */
         .d3-tip:after {
-          box-sizing: border-box;
-          display: inline;
-          font-size: 10px;
-          width: 100%;
-          line-height: 1;
-          color: rgba(0, 0, 0, 0.8);
-          content: "\25BC";
-          position: absolute;
-          text-align: center;
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
         }
 
         /* Style northward tooltips differently */
         .d3-tip.n:after {
-          margin: -1px 0 0 0;
-          top: 100%;
-          left: 0;
+            margin: -1px 0 0 0;
+            top: 100%;
+            left: 0;
         }
 
         .node {
@@ -96,13 +96,13 @@
         svg {
             margin-top: 50px;
             margin-bottom: 50px;
-            margin-left:auto;
-            margin-right:auto;
-            display:block;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
         }
 
         .container-fluid {
-             padding: 60px 50px;
+            padding: 60px 50px;
         }
 
         .bg-grey {
@@ -188,17 +188,17 @@
         </div>
         <div class="col-md-9" id="svg_container">
             <h3 id="graph_title"></h3>
-            <svg width="900" height="900"></svg>
         </div>
 
     </div>
 </div>
 
 <script>
+
+
     function circles_graph(filter) {
-        document.getElementById("graph_title").innerHTML = "Salaries by Region: "+filter;
-        if (svg!=null)
-            d3.selectAll("svg").remove();
+        document.getElementById("graph_title").innerHTML = "Salaries by Region: " + filter;
+        d3.selectAll("svg").remove();
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')
@@ -206,18 +206,20 @@
             .html(function (d) {
                 salary_rating = 0;
                 count = 0;
-                _.each(d.children, function(element,index, list) {
+                _.each(d.children, function (element, index, list) {
                     console.log(element);
                     salary_rating += element.value;
                     region = element.parent.data.name;
-                    count+=1
+                    count += 1
                 });
-                salary_rating = (salary_rating/count).toFixed(2);
-                return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average "+filter+"</strong> <span style='color:blue'>" + "$" + salary_rating;
+                salary_rating = (salary_rating / count).toFixed(2);
+                return "<strong>Region/University:</strong> <span style='color:red'>" + region + "</span><br/><strong>Average " + filter + "</strong> <span style='color:blue'>" + "$" + salary_rating;
 
             });
 
-        var svg = d3.select("svg"),
+        var svg = d3.select("#svg_container").append("svg")
+                .attr("width", 900 + 20 + 20)
+                .attr("height", 900 + 20 + 20),
             margin = 20,
             diameter = +svg.attr("width"),
             g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
@@ -233,141 +235,141 @@
             .size([diameter - margin, diameter - margin])
             .padding(2);
 
-         d3.csv("dataset/salaries-by-region.csv", function(error, data) {
-            _.each(data, function(element, index, list){
-                element['Starting Median Salary'] = +element['Starting Median Salary'].replace("$","").replace(",","");
-                element['Mid-Career Median Salary'] = +element['Mid-Career Median Salary'].replace("$","").replace(",","");
+        d3.csv("dataset/salaries-by-region.csv", function (error, data) {
+            _.each(data, function (element, index, list) {
+                element['Starting Median Salary'] = +element['Starting Median Salary'].replace("$", "").replace(",", "");
+                element['Mid-Career Median Salary'] = +element['Mid-Career Median Salary'].replace("$", "").replace(",", "");
                 element['Percent change from Starting to Mid-Career Salary'] = +element['Percent change from Starting to Mid-Career Salary'];
-                element['Mid-Career 10th Percentile Salary'] = +element['Mid-Career 10th Percentile Salary'].replace("$","").replace(",","");
-                element['Mid-Career 25th Percentile Salary'] = +element['Mid-Career 25th Percentile Salary'].replace("$","").replace(",","");
-                element['Mid-Career 75th Percentile Salary'] = +element['Mid-Career 75th Percentile Salary'].replace("$","").replace(",","");
-                element['Mid-Career 90th Percentile Salary'] = +element['Mid-Career 90th Percentile Salary'].replace("$","").replace(",","");
+                element['Mid-Career 10th Percentile Salary'] = +element['Mid-Career 10th Percentile Salary'].replace("$", "").replace(",", "");
+                element['Mid-Career 25th Percentile Salary'] = +element['Mid-Career 25th Percentile Salary'].replace("$", "").replace(",", "");
+                element['Mid-Career 75th Percentile Salary'] = +element['Mid-Career 75th Percentile Salary'].replace("$", "").replace(",", "");
+                element['Mid-Career 90th Percentile Salary'] = +element['Mid-Career 90th Percentile Salary'].replace("$", "").replace(",", "");
 
 
             });
 
-        //*************************************************
-        // THE FUNCTION
-        //*************************************************
-        function genJSON(csvData, groups) {
+            //*************************************************
+            // THE FUNCTION
+            //*************************************************
+            function genJSON(csvData, groups) {
 
-          var genGroups = function(data) {
-            return _.map(data, function(element, index) {
-              return { name : index, children : element };
-            });
-          };
+                var genGroups = function (data) {
+                    return _.map(data, function (element, index) {
+                        return {name: index, children: element};
+                    });
+                };
 
-          var nest = function(node, curIndex) {
-            if (curIndex === 0) {
-              node.children = genGroups(_.groupBy(csvData, groups[0]));
-              _.each(node.children, function (child) {
-                nest(child, curIndex + 1);
-              });
+                var nest = function (node, curIndex) {
+                    if (curIndex === 0) {
+                        node.children = genGroups(_.groupBy(csvData, groups[0]));
+                        _.each(node.children, function (child) {
+                            nest(child, curIndex + 1);
+                        });
+                    }
+                    else {
+                        if (curIndex < groups.length) {
+                            node.children = genGroups(
+                                _.groupBy(node.children, groups[curIndex])
+                            );
+                            _.each(node.children, function (child) {
+                                nest(child, curIndex + 1);
+                            });
+                        }
+                    }
+                    return node;
+                };
+                return nest({}, 0);
             }
-            else {
-              if (curIndex < groups.length) {
-                node.children = genGroups(
-                  _.groupBy(node.children, groups[curIndex])
-                );
-                _.each(node.children, function (child) {
-                  nest(child, curIndex + 1);
-                });
-              }
-            }
-            return node;
-          };
-          return nest({}, 0);
-        }
-        //*************************************************
-        // CALL THE FUNCTION
-        //*************************************************
-        var preppedData = genJSON(data, ['Region','School Name'])
 
-        root = d3.hierarchy(preppedData)
-            .sum(function (d) {
-                return d[filter];
-            })
-            .sort(function (a, b) {
-                return b.value - a.value;
-            });
+            //*************************************************
+            // CALL THE FUNCTION
+            //*************************************************
+            var preppedData = genJSON(data, ['Region', 'School Name'])
 
-
-
-        var focus = root,
-            nodes = pack(root).descendants(),
-            view;
-        var circle = g.selectAll("circle")
-            .data(nodes)
-            .enter().append("circle")
-            .attr("class", function (d) {
-                return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
-            })
-            .style("fill", function (d) {
-                return d.children ? color(d.depth) : null;
-            })
-            .on("click", function (d) {
-                if (focus !== d) zoom(d), d3.event.stopPropagation();
-            })
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
-
-        var text = g.selectAll("text")
-            .data(nodes)
-            .enter().append("text")
-            .attr("class", "label")
-            .style("fill-opacity", function (d) {
-                return d.parent === root ? 1 : 0;
-            })
-            .style("font-size", function (d) {
-                if(d.parent == root)
-                    return "10px";
-                else
-                    return "7px";
-            })
-            .style("display", function (d) {
-                return d.parent === root ? "inline" : "none";
-            })
-            .text(function (d) {
-                if(d.data.name != null)
-                    return d.data.name;
-            });
-
-        var node = g.selectAll("circle,text");
-
-        svg
-            .style("background", "#F6F6F6")
-            .on("click", function () {
-                zoom(root);
-            });
-        zoomTo([root.x, root.y, root.r * 2 + margin]);
-
-        function zoom(d) {
-            var focus0 = focus;
-            focus = d;
-
-            var transition = d3.transition()
-                .duration(d3.event.altKey ? 7500 : 750)
-                .tween("zoom", function (d) {
-                    var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
-                    return function (t) {
-                        zoomTo(i(t));
-                    };
-                });
-
-            transition.selectAll("text")
-                .filter(function (d) {
-                    return d.parent === focus || this.style.display === "inline";
+            root = d3.hierarchy(preppedData)
+                .sum(function (d) {
+                    return d[filter];
                 })
+                .sort(function (a, b) {
+                    return b.value - a.value;
+                });
+
+
+            var focus = root,
+                nodes = pack(root).descendants(),
+                view;
+            var circle = g.selectAll("circle")
+                .data(nodes)
+                .enter().append("circle")
+                .attr("class", function (d) {
+                    return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
+                })
+                .style("fill", function (d) {
+                    return d.children ? color(d.depth) : null;
+                })
+                .on("click", function (d) {
+                    if (focus !== d) zoom(d), d3.event.stopPropagation();
+                })
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
+
+            var text = g.selectAll("text")
+                .data(nodes)
+                .enter().append("text")
+                .attr("class", "label")
                 .style("fill-opacity", function (d) {
-                    return d.parent === focus ? 1 : 0;
+                    return d.parent === root ? 1 : 0;
                 })
-                .on("start", function (d) {
-                    if (d.parent === focus) this.style.display = "inline";
+                .style("font-size", function (d) {
+                    if (d.parent == root)
+                        return "10px";
+                    else
+                        return "7px";
                 })
-                .on("end", function (d) {
-                    if (d.parent !== focus) this.style.display = "none";
+                .style("display", function (d) {
+                    return d.parent === root ? "inline" : "none";
+                })
+                .text(function (d) {
+                    if (d.data.name != null)
+                        return d.data.name;
                 });
-         }
+
+            var node = g.selectAll("circle,text");
+
+            svg
+                .style("background", "#F6F6F6")
+                .on("click", function () {
+                    zoom(root);
+                });
+            zoomTo([root.x, root.y, root.r * 2 + margin]);
+
+            function zoom(d) {
+                var focus0 = focus;
+                focus = d;
+
+                var transition = d3.transition()
+                    .duration(d3.event.altKey ? 7500 : 750)
+                    .tween("zoom", function (d) {
+                        var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
+                        return function (t) {
+                            zoomTo(i(t));
+                        };
+                    });
+
+                transition.selectAll("text")
+                    .filter(function (d) {
+                        return d.parent === focus || this.style.display === "inline";
+                    })
+                    .style("fill-opacity", function (d) {
+                        return d.parent === focus ? 1 : 0;
+                    })
+                    .on("start", function (d) {
+                        if (d.parent === focus) this.style.display = "inline";
+                    })
+                    .on("end", function (d) {
+                        if (d.parent !== focus) this.style.display = "none";
+                    });
+            }
 
             function zoomTo(v) {
                 var k = diameter / v[2];
@@ -383,32 +385,29 @@
     }
 
     window.onload = circles_graph("Starting Median Salary");
-    document.getElementById('sms').onclick = function() {
+    document.getElementById('sms').onclick = function () {
         circles_graph("Starting Median Salary");
     }
 
-    document.getElementById('mms').onclick = function() {
+    document.getElementById('mms').onclick = function () {
         circles_graph("Mid-Career Median Salary");
     }
 
-    document.getElementById('mps10').onclick = function() {
+    document.getElementById('mps10').onclick = function () {
         circles_graph("Mid-Career 10th Percentile Salary");
     }
 
-    document.getElementById('mps25').onclick = function() {
+    document.getElementById('mps25').onclick = function () {
         circles_graph("Mid-Career 25th Percentile Salary");
     }
 
-    document.getElementById('mps75').onclick = function() {
+    document.getElementById('mps75').onclick = function () {
         circles_graph("Mid-Career 75th Percentile Salary");
     }
 
-    document.getElementById('mps90').onclick = function() {
+    document.getElementById('mps90').onclick = function () {
         circles_graph("Mid-Career 90th Percentile Salary");
     }
-
-
-
 
 
 </script>
