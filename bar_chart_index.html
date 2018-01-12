@@ -16,10 +16,6 @@
             font: 10px sans-serif;
         }
 
-        .bar rect {
-            fill: steelblue;
-        }
-
         .bar text.value {
             fill: white;
         }
@@ -182,12 +178,12 @@
                 <option value='0' selected disabled hidden>Choose filter...</option>
                 <option id='degree_start' value='1'>Starting Median Salary</option>
                 <option id='degree_mid_start' value='2'>Mid-Career Median Salary</option>
-                <option id='degree_mid_10' value='3'>Mid-Career 10th Percentile Salary</option>
+                <option id='degree_mid_10' value='3'>Mid-Career 10th Percentile Salary</option>x
                 <option id='degree_mid_25' value='4'>Mid-Career 25th Percentile Salary</option>
                 <option id='degree_mid_75' value='5'>Mid-Career 75th Percentile Salary</option>
                 <option id='degree_mid_90' value='6'>Mid-Career 90th Percentile Salary</option>
             </select>
-            <input type="button" class="button" value="College Type" id="uni_btn"/>
+            <input type="button" class="button" value="College Name" id="uni_btn"/>
             <select name='type' id='uni' hidden>
                 <option value='0' selected disabled hidden>Choose filter...</option>
                 <option id='uni_start' value='1'>Starting Median Salary</option>
@@ -284,7 +280,8 @@
                 .attr("width", function (d) {
                     return x(d["Starting Median Salary"]);
                 })
-                .attr("height", y.bandwidth());
+                .attr("height", y.bandwidth())
+                .attr("fill", "steelblue");
 
             bar.append("text")
                 .attr("class", "value")
@@ -368,7 +365,8 @@
                 .attr("width", function (d) {
                     return x(d["Mid-Career Median Salary"]);
                 })
-                .attr("height", y.bandwidth());
+                .attr("height", y.bandwidth())
+                .attr("fill", "steelblue");
 
             bar.append("text")
                 .attr("class", "value")
@@ -453,7 +451,8 @@
                 .attr("width", function (d) {
                     return x(d[percentile]);
                 })
-                .attr("height", y.bandwidth());
+                .attr("height", y.bandwidth())
+                .attr("fill", "steelblue");
 
             bar.append("text")
                 .attr("class", "value")
@@ -481,7 +480,7 @@
         });
     }
 
-    function startCareerCollege() {
+    function startCareerCollege(name) {
         document.getElementById("graph_title").innerHTML = "Starting Median Salary by College";
         d3.selectAll("svg").remove();
 
@@ -534,7 +533,13 @@
                 .attr("width", function (d) {
                     return x(d["Starting Median Salary"]);
                 })
-                .attr("height", yBig.bandwidth());
+                .attr("height", yBig.bandwidth())
+                .attr("fill", function (d) {
+                    if (d["School Name"] === name)
+                        return "red";
+                    else
+                        return "steelblue";
+                });
 
             bar.append("text")
                 .attr("class", "value")
@@ -562,7 +567,7 @@
         });
     }
 
-    function midCareerCollege() {
+    function midCareerCollege(name) {
         document.getElementById("graph_title").innerHTML = "Mid-Career Median Salary by College";
         d3.selectAll("svg").remove();
 
@@ -617,7 +622,13 @@
                 .attr("width", function (d) {
                     return x(d["Mid-Career Median Salary"]);
                 })
-                .attr("height", yBig.bandwidth());
+                .attr("height", yBig.bandwidth())
+                .attr("fill", function (d) {
+                    if (d["School Name"] === name)
+                        return "red";
+                    else
+                        return "steelblue";
+                });
 
             bar.append("text")
                 .attr("class", "value")
@@ -645,7 +656,7 @@
         });
     }
 
-    function midCareerTHCollege(percentile) {
+    function midCareerTHCollege(percentile, name) {
         document.getElementById("graph_title").innerHTML = percentile + " by College";
         d3.selectAll("svg").remove();
 
@@ -706,7 +717,13 @@
                 .attr("width", function (d) {
                     return x(d[percentile]);
                 })
-                .attr("height", yBig.bandwidth());
+                .attr("height", yBig.bandwidth())
+                .attr("fill", function (d) {
+                    if (d["School Name"] === name)
+                        return "red";
+                    else
+                        return "steelblue";
+                });
 
             bar.append("text")
                 .attr("class", "value")
@@ -740,14 +757,12 @@
         .on("click", function () {
             $("#degree").show();
             $("#uni").hide();
-            $("#region").hide();
         });
 
     d3.select('#uni_btn')
         .on("click", function () {
             $("#degree").hide();
             $("#uni").show();
-            $("#region").hide();
         });
 
     $('#degree').change(function () {
