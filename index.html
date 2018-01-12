@@ -6,6 +6,9 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Cabin" rel="stylesheet" type="text/css">
+
     <script type="text/javascript" src="lib/underscore-min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -163,6 +166,7 @@
         }
 
         h3 {
+            font-family: "Montserrat", sans-serif;
             text-align: center;
         }
 
@@ -175,6 +179,41 @@
             border: 0;
             border-radius: 0;
             height: 34px;
+        }
+
+        p {
+            font-size: 15px;
+            font-family: "Cabin", sans-serif;
+        }
+
+        .tg {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .tg td {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            padding: 10px 5px;
+            border-style: solid;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+        }
+
+        .tg th {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            padding: 10px 5px;
+            border-style: solid;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+        }
+
+        .container-fluid li {
+            font-size: 12px;
         }
 
     </style>
@@ -208,8 +247,65 @@
     <div class="row">
         <div class="col-sm-8">
             <h2>Where it Pays to Attend College</h2><br>
-            <h4>*INFO*</h4><br>
-            <p>*SOME MORE INFO*</p>
+            <p>Where people go to college can make a big difference in starting pay, and that difference is largely
+                sustained into midcareer, according to a large study of global compensation.
+
+                In the yearlong effort, PayScale Inc., an online provider of global compensation data, surveyed 1.2
+                million bachelor's degree graduates with a minimum of 10 years of work experience (with a median of 15.5
+                years). The subjects hailed from more than 300 U.S. schools ranging from state institutions to the Ivy
+                League, and their incomes show that the subject you major in can have little to do with your long-term
+                earning power.</p>
+            <h4>The percentile salary estimate is the value of a salary below which a certain percent of workers
+                fall.</h4><br>
+            <p>The following table provides an example of an occupation's percentile salaries:</p>
+            <table class="tg">
+                <tr>
+                    <th><strong>Percentile</strong></th>
+                    <th>10%</th>
+                    <th>25%</th>
+                    <th>50%</th>
+                    <th>75%</th>
+                    <th>90%</th>
+                </tr>
+                <tr>
+                    <td><strong>Hourly Salary</strong><br></td>
+                    <td>$11.00</td>
+                    <td>$15.00</td>
+                    <td>$20.00</td>
+                    <td>$24.00</td>
+                    <td>$29.00</td>
+                </tr>
+                <tr>
+                    <td><strong>Annual Salary</strong><br></td>
+                    <td>$22,880</td>
+                    <td>$31,200</td>
+                    <td>$41,600</td>
+                    <td>$49,920</td>
+                    <td>$60,320</td>
+                </tr>
+            </table>
+            <p>The hourly salary estimates in this example indicate that:</p>
+            <ul>
+                <li>10% of employees earn less than $11.00 per hour; therefore the remaining 90% earn more than $11.00
+                    per hour.
+                </li>
+                <li>25% earn less than $15.00; 75% earn more than $15.00.</li>
+                <li>50% earn less than $20.00; 50% earn more than $20.00 (The 50th percentile is called the Median).
+                </li>
+                <li>75% earn less than $24.00; 25% earn more than $24.00.</li>
+                <li>90% earn less than $29.00; 10% earn more than $29.00.</li>
+            </ul>
+            <p>The annual salary estimates in this example indicate that:</p>
+            <ul>
+                <li>10% of employees earn less than $22,880 per year; therefore the remaining 90% earn more than $22,880
+                    per year.
+                </li>
+                <li>25% earn less than $31,200; 75% earn more than $31,200.</li>
+                <li>50% earn less than $41,600; 50% earn more than $41,600 (The 50th percentile is called the Median).
+                </li>
+                <li>75% earn less than $49,920; 25% earn more than $49,920.</li>
+                <li>90% earn less than $60,320; 10% earn more than $60,320.</li>
+            </ul>
         </div>
         <div class="col-sm-4">
             <span class="glyphicon glyphicon-info-sign logo"></span>
@@ -228,7 +324,7 @@
                 <option value='0' selected disabled hidden>Choose filter...</option>
                 <option value='1'>Starting Median Salary</option>
                 <option value='2'>Mid-Career Median Salary</option>
-                <option value='3'>Mid-Career 10th Percentile Salary</option>x
+                <option value='3'>Mid-Career 10th Percentile Salary</option>
                 <option value='4'>Mid-Career 25th Percentile Salary</option>
                 <option value='5'>Mid-Career 75th Percentile Salary</option>
                 <option value='6'>Mid-Career 90th Percentile Salary</option>
