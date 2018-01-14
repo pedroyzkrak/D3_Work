@@ -50,7 +50,13 @@
         .logo {
             color: #2c4868;
             font-size: 200px;
+
         }
+
+        .logo-small {
+             color: #2c4868;
+             font-size: 25px;
+         }
 
         .d3-tip {
             font-family: "Consolas", sans-serif;
@@ -131,10 +137,14 @@
         }
 
         .container-fluid {
-            padding: 60px 50px;
+            padding-top: 60px;
+        }
+
+        .container-fluid li {
+            font-size: 13px;
         }
         
-        .navbar-collapse a {
+        .navbar-collapse a, footer a {
             cursor: pointer;
         }
 
@@ -204,6 +214,7 @@
             border-width: 1px;
             overflow: hidden;
             word-break: normal;
+            text-align: center;
         }
 
         .tg th {
@@ -215,10 +226,11 @@
             border-width: 1px;
             overflow: hidden;
             word-break: normal;
+            text-align: center;
         }
 
-        .container-fluid li {
-            font-size: 12px;
+        footer {
+            padding-bottom: 15px;
         }
 
     </style>
@@ -236,7 +248,7 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a class="public" id="link_bar">BAR CHART</a></li>
-                <li><a class="public" id="link_circle">NESTED CIRCLES CHART</a></li>
+                <li><a class="public" id="link_circle">CIRCULAR TREEMAP</a></li>
             </ul>
         </div>
     </div>
@@ -283,7 +295,7 @@
                     <td>$49,920</td>
                     <td>$60,320</td>
                 </tr>
-            </table>
+            </table><br>
             <p>The hourly salary estimates in this example indicate that:</p>
             <ul>
                 <li>10% of employees earn less than $11.00 per hour; therefore the remaining 90% earn more than $11.00
@@ -378,6 +390,14 @@
     </div>
 </div>
 
+<!--FOOTER-->
+<footer class="container-fluid text-center">
+    <a id="to_the_top" title="Back to top">
+        <span class="glyphicon glyphicon-chevron-up logo-small"></span>
+    </a>
+    <p style="font-family: 'Montserrat', sans-serif;">&copy; Francisco Lopes 76406 & Pedro Gusmão 77867</p>
+</footer>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="lib/d3-tip.js"></script>
 
@@ -385,7 +405,7 @@
 <script type="text/javascript" src="lib/bar_chart.js"></script>
 
 <!--CIRCLES SCRIPTING-->
-<script type="text/javascript" src="lib/circles.js"></script>
+<script type="text/javascript" src="lib/circular_treemap.js"></script>
 
 <!--SITE SCRIPTING-->
 <script type="text/javascript" src="lib/site.js"></script>
